@@ -61,9 +61,7 @@ class DrawTree:
         fig = self.plt.figure(1, facecolor='white')
         fig.clf()
         """
-        定义该函数的一个属性ax1
-        ax属性会被matplotlib自动识别，意为“创建子图”，ax1即子图一
-        111即1x1分割界面取第一个图，frameon = False 即无边缘
+        ax是subplot意为“创建子图”，111即1x1分割界面取第一个图，frameon = False 即无边缘
         """
         self.ax = self.plt.subplot(111, frameon=False)
         self.plot_node(u'决策点', current_point=(0.5, 0.1), original_point=(0.1, 0.5),
@@ -73,6 +71,9 @@ class DrawTree:
         self.plt.show()
 
     def plot_midtext(self, original_point=(0, 0), current_point=(1, 1), content='test'):
+        """
+        绘制箭头中间的注释
+        """
         x_mid = (original_point[0] - current_point[0]) / 2.0 + current_point[0]
         y_mid = (original_point[1] - current_point[1]) / 2.0 + current_point[1]
         self.ax.text(x_mid, y_mid, content, va="center", ha="center", rotation=30, size=12)
@@ -82,7 +83,6 @@ class DrawTree:
         用递归绘制各个枝叶
         :param my_tree:
         :param node_text:
-        :return:
         """
         # 获取当前枝的叶数和层数
         num_leafs = self.treelib.get_num_of_leafs(my_tree)
@@ -136,11 +136,12 @@ class DrawTree:
         创建完整的树
         :param my_tree:
         绘制的思路是：
-        根据树的叶数和层树把界面分割成__x_off长，__y_off宽的网格,每个网格的左下点为叶记录坐标.
+        根据树的叶数和层树把界面分割成__x_off长，__y_off宽的一个个网格,网格的左下点为叶记录坐标.
         当一个点为叶时：该点x坐标为：0+__used_point*__x_off 即在已经绘制的叶的最右侧
                        该点y坐标为：上一级分支的下一层
         当一个点为枝时：该点x坐标为：0+(__used_point+num_leaf/2)*__x_off
                          即在已绘制叶的右侧、自己所含叶将占据空间的中间，y坐标同叶
+        和叶坐标从左到右一个个绘制不同，分支坐标要跨位置调用，所以需要一个二维列表__orig_pointlist储存各个分支坐标
         """
         # 初始化图
         fig = self.plt.figure(1, facecolor='white')
@@ -170,6 +171,6 @@ class DrawTree:
         self.plot_tree(my_tree, '')
         self.plt.show()
 
-
+# 测试数据
 test = DrawTree()
 test.create_whole_tree(get_tree)
