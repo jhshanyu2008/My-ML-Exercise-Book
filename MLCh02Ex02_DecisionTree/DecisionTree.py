@@ -260,7 +260,7 @@ def get_num_of_maxBranch(my_tree):
     return max_branch
 
 
-# 获取树的层数和单层中最大的分指数
+# 获取树的层数
 def get_tree_depth(my_tree):
     """
     获取树的目录层数，方法和叶相似
