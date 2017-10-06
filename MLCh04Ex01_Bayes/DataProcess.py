@@ -8,8 +8,8 @@ from NaiveBayes import *
 def test_dataSet():
     """
     生成测试样本:
-    postingList记录了一个6个样本的原始数据
-    classVec则指示这五个样本的标签('1'为"侮辱",'0'为"非侮辱")
+    trainList记录了一个6个样本的原始数据
+    trainCategory则指示这6个样本的标签('1'为"侮辱",'0'为"非侮辱")
     :return: 
     """
     trainList = [['my', 'dog', 'has', 'flea', 'problems', 'help', 'please'],
