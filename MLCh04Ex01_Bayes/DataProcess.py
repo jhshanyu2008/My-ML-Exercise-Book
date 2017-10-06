@@ -81,7 +81,7 @@ def get_data_matrix(testList, trainList):
 # 调用 NaiveBayes对测试集分类
 def test_naive_bayes(testMatrix, trainMatrix, trainCategory):
     """
-
+    使用贝叶斯分类，返回分类结果向量
     :param testMatrix:
     :param trainMatrix:
     :param trainCategory:
@@ -97,6 +97,7 @@ def test_naive_bayes(testMatrix, trainMatrix, trainCategory):
 # 主分类函数
 def classify_main(testList, trainList, trainCategory):
     """
+    # 主函数，打印分类结果
     :param testList: 
     :param trainList: 
     :param trainCategory: 
@@ -107,7 +108,8 @@ def classify_main(testList, trainList, trainCategory):
     for i in range(testLen):
         print("The {0} is classified as {1}".format(testList[i], classify_result[i]))
 
-
+        
+# 生成各种测试数据
 test_list = [['love', 'my', 'dalmation'],
              ['stupid', 'garbage'],
              ['my', 'dog', 'has', 'flea', 'problems', 'help', 'please'],
