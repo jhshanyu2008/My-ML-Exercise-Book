@@ -4,11 +4,11 @@
 from NaiveBayes import *
 
 
-# 这是一个测试样本
+# 这是一个测试用的训练原始样本
 def test_dataSet():
     """
     生成测试样本:
-    postingList记录了一个5个样本的原始数据
+    postingList记录了一个6个样本的原始数据
     classVec则指示这五个样本的标签('1'为"侮辱",'0'为"非侮辱")
     :return: 
     """
