@@ -38,6 +38,7 @@ def create_vocabList(dataSet):
 
 
 # 检查输入的文档中是否出现词列表中的词汇
+# 这里只分析单个词汇是否出现，不关心次数
 def set_of_wordsVec(vocabList, inputSet):
     """
     检查输入文档中的所有词汇是否存在于词汇列表中
@@ -60,21 +61,47 @@ def set_of_wordsVec(vocabList, inputSet):
     return returnVec
 
 
+# 检查输入的文档中是否出现词列表中的词汇
+# 这里在分析词汇是否出现的同时还关注出现的次数，相当于为每个词添加了权重
+def bag_of_wordsVec(vocabList, inputSet):
+    """
+    内容和set_of_wordsVec(vocabList, inputSet)基本相同，除了置一处换成了累加
+    :param vocabList:
+    :param inputSet:
+    :return returnVec:
+    """
+    returnVec = [0] * len(vocabList)
+    for word in inputSet:
+        # if word in vocabList 这样写也可以，虽然我不习惯
+        if vocabList.__contains__(word):
+            # 如果出现，相应标识位置 1
+            returnVec[vocabList.index(word)] = +1
+        else:
+            print("The word {0} is not in my Vocabulary".format(word))
+    return returnVec
+
+
 # 把原始训练集和测试集转换成数矩阵
-def get_data_matrix(testList, trainList):
+def get_data_matrix(testList, trainList, model='set'):
     """
     把原始数据转换成可用的训练集和测试集，输出全是 0、1的向量集合
+    :param model:
     :param testList:
     :param trainList:
     :return testMatrix, trainMatrix:
     """
+    print("The vocablist is based on {0} model.".format(model))
+    modelDic = {'set': set_of_wordsVec,
+                'bag': bag_of_wordsVec}
+    transferModel = modelDic[model]
+
     my_vocabList = create_vocabList(trainList)
     trainMatrix = []
     testMatrix = []
     for trainDoc in trainList:
-        trainMatrix.append(set_of_wordsVec(my_vocabList, trainDoc))
+        trainMatrix.append(transferModel(my_vocabList, trainDoc))
     for testDoc in testList:
-        testMatrix.append(set_of_wordsVec(my_vocabList, testDoc))
+        testMatrix.append(transferModel(my_vocabList, testDoc))
     return testMatrix, trainMatrix
 
 
@@ -95,20 +122,19 @@ def test_naive_bayes(testMatrix, trainMatrix, trainCategory):
 
 
 # 主分类函数
-def classify_main(testList, trainList, trainCategory):
+def classify_main(testList, trainList, trainCategory, model='set'):
     """
     # 主函数，打印分类结果
-    :param testList: 
+    :param model:
+    :param testList:
     :param trainList: 
     :param trainCategory: 
     """
-    testLen = len(testList)
-    testMatrix, trainMatrix = get_data_matrix(testList, trainList)
+    testMatrix, trainMatrix = get_data_matrix(testList, trainList, model)
     classify_result = test_naive_bayes(testMatrix, trainMatrix, trainCategory)
-    for i in range(testLen):
-        print("The {0} is classified as {1}".format(testList[i], classify_result[i]))
+    return classify_result
 
-        
+
 # 生成各种测试数据
 test_list = [['love', 'my', 'dalmation'],
              ['stupid', 'garbage'],
@@ -117,8 +143,8 @@ test_list = [['love', 'my', 'dalmation'],
              ['my', 'dalmation', 'is', 'so', 'cute', 'I', 'love', 'him'],
              ['stop', 'posting', 'stupid', 'worthless', 'garbage'],
              ['mr', 'licks', 'ate', 'my', 'steak', 'how', 'to', 'stop', 'him']]
-train_list, train_category = test_dataSet()
-test_vocabList = create_vocabList(train_list)
-test_matrix, train_matrix = get_data_matrix(test_list, train_list)
-get_train_prob(train_matrix, train_category)
-classify_main(test_list, train_list, train_category)
+# train_list, train_category = test_dataSet()
+# test_vocabList = create_vocabList(train_list)
+# test_matrix, train_matrix = get_data_matrix(test_list, train_list, model='set')
+# get_train_prob(train_matrix, train_category)
+# classify_main(test_list, train_list, train_category, model='set')
