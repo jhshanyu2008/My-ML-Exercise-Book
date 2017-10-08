@@ -2,18 +2,8 @@
 测试邮件分类
 """
 import DataProcess
-import re
 import os
 import random
-
-
-# 切割文本
-def parse_to_wordList(Parse):
-    # 匹配任何非单词字符,等价于'[^A-Za-z0-9_]',匹配 0个或多个的表达式
-    tokenList = re.split(r'[\W*]', Parse)
-    # 选取两个字母以上的单词
-    returnList = [tok.lower() for tok in tokenList if len(tok) > 2]
-    return returnList
 
 
 def get_email_data(testRadio):
@@ -42,9 +32,9 @@ def get_email_data(testRadio):
     for i in range(hamFileLen):
         if hamNumList.__contains__(i):
             hamTestFileList.append('email/ham/{0}'.format(hamFileList[i]))
-            hamTestList.append(parse_to_wordList(open('email/ham/{0}'.format(hamFileList[i])).read()))
+            hamTestList.append(DataProcess.parse_to_wordList(open('email/ham/{0}'.format(hamFileList[i])).read()))
         else:
-            hamTrainList.append(parse_to_wordList(open('email/ham/{0}'.format(hamFileList[i])).read()))
+            hamTrainList.append(DataProcess.parse_to_wordList(open('email/ham/{0}'.format(hamFileList[i])).read()))
     # 同理，对spam也作相应处理
     spamTrainList = []
     spamTestList = []
@@ -55,9 +45,9 @@ def get_email_data(testRadio):
     for i in range(spamFileLen):
         if spamNumList.__contains__(i):
             spamTestFileList.append('email/spam/{0}'.format(spamFileList[i]))
-            spamTestList.append(parse_to_wordList(open('email/spam/{0}'.format(spamFileList[i])).read()))
+            spamTestList.append(DataProcess.parse_to_wordList(open('email/spam/{0}'.format(spamFileList[i])).read()))
         else:
-            spamTrainList.append(parse_to_wordList(open('email/spam/{0}'.format(spamFileList[i])).read()))
+            spamTrainList.append(DataProcess.parse_to_wordList(open('email/spam/{0}'.format(spamFileList[i])).read()))
 
     # 构建完整的训练集和测试集
     testFileList = hamTestFileList + spamTestFileList

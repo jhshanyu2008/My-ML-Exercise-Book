@@ -2,6 +2,7 @@
 本例将制作一个快速的关键词过滤器，这里存放和数据操作有关的各种操作
 """
 from NaiveBayes import *
+import re
 
 
 # 这是一个测试用的训练原始样本
@@ -20,6 +21,15 @@ def test_dataSet():
                  ['quit', 'buying', 'worthless', 'dog', 'food', 'stupid']]
     trainCategory = [0, 1, 0, 1, 0, 1]
     return trainList, trainCategory
+
+
+# 切割文本
+def parse_to_wordList(Parse):
+    # 匹配任何非单词字符,等价于'[^A-Za-z0-9_]',匹配 0个或多个的表达式
+    tokenList = re.split(r'[\W*]', Parse)
+    # 选取两个字母以上的单词
+    returnList = [tok.lower() for tok in tokenList if len(tok) > 2]
+    return returnList
 
 
 # 创建一个包含所有文本的不重复词的列表
@@ -82,20 +92,28 @@ def bag_of_wordsVec(vocabList, inputSet):
 
 
 # 把原始训练集和测试集转换成数矩阵
-def get_data_matrix(testList, trainList, model='set'):
+def get_data_matrix(testList, trainList, model='set', vocabModel='normal', extraVocabList=None):
     """
     把原始数据转换成可用的训练集和测试集，输出全是 0、1的向量集合
+    :param extraVocabList:
+    :param vocabModel:
     :param model:
     :param testList:
     :param trainList:
     :return testMatrix, trainMatrix:
     """
-    print("The vocablist is based on {0} model.".format(model))
+    print("\nThe vocablist is based on {0} model.\n".format(model))
     modelDic = {'set': set_of_wordsVec,
                 'bag': bag_of_wordsVec}
     transferModel = modelDic[model]
 
-    my_vocabList = create_vocabList(trainList)
+    if extraVocabList is None:
+        extraVocabList = []
+    # 默认直接构造词汇表，有外部词汇表时使用外部的词汇表
+    extraVocabDic = {'normal': create_vocabList(trainList),
+                     'extra': extraVocabList}
+    my_vocabList = extraVocabDic[vocabModel]
+
     trainMatrix = []
     testMatrix = []
     for trainDoc in trainList:
