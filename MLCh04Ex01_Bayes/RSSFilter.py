@@ -91,9 +91,9 @@ def RSS_filter(sourceA, sourceB, testRadio):
     classifyClass = {0: 'sourceB-sfbay',
                      1: 'sourceA-newyork'}
     for i in range(len(testCategory)):
-        print("The {0}\n is classified as {1}，and the real source is {2}"
+        print("The {0}\n is classified as {1}，and the real source is {2} (with high-frequent words excepted)"
               .format(testList[i], classifyClass[classifyResult[i]], classifyClass[testCategory[i]]))
-        print("The {0}\n is classified as {1}，and the real source is {2}"
+        print("The {0}\n is classified as {1}，and the real source is {2} (no exclusion)"
               .format(testList[i], classifyClass[classifyResult2[i]], classifyClass[testCategory[i]]))
         if classifyResult[i] != testCategory[i]:
             errorCount += 1
@@ -102,8 +102,8 @@ def RSS_filter(sourceA, sourceB, testRadio):
     errorRate = float(errorCount / len(testCategory))
     errorRate2 = float(errorCount2 / len(testCategory))
     # 打印错误率
-    print("The error rate of this test is {}%".format(errorRate * 100))
-    print("The error rate of this test is {}%".format(errorRate2 * 100))
+    print("The error rate of this test(with high-frequent words excepted) is {}%".format(errorRate * 100))
+    print("The error rate of this test(no exclusion) is {}%".format(errorRate2 * 100))
 
 
 RSS_filter(source_A, source_B, 0.1)
