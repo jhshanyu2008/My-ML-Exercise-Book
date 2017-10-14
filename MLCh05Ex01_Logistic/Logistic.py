@@ -1,7 +1,5 @@
 """
-被导师指派去学labview，我觉得那玩意儿好坑，给的资料也都是些和控制系八竿子搭不上关系的，还好我早TM习惯自学了。
-...
-今天重新梳理 logistic回归(书里的理论解释的天马行空，我表示强烈抗议！)，参照网上转载的博文，原作者已经自己删了，恕我没法写出处。
+重新梳理 logistic回归(书里的理论解释的天马行空，我表示强烈抗议！)，参照网上转载的博文，原作者已经自己删了，恕我没法写出处。
 函数的目的就是找到一个拟合线：z= w0*x0 + w1*x1 + w2*x2 +...+wn*xn (其中取 x0=1) 使 z尽可能的接近标签 y值，这里的我们最好使用阶跃函数来对样本分类
 但是阶跃函数的跳变不易实现，取而代之使用sigmoid函数：
 
@@ -47,22 +45,22 @@ import matplotlib.pyplot as plt
 
 
 # 读取测试数据
-def read_dataset(fileName=''):
+def read_dataset(fileName='testSet.txt'):
     """
     读取测试数据并转化为浮点数/整数
     :param fileName:
     :return:
     """
     dataMatrix = []
-    labelMatrix = []
+    labelVec = []
     fr = open(fileName)
     for frLine in fr.readlines():
         lineList = frLine.strip().split()
         # Xi = (1；x1;x2;...;xn) A = (X1';X2';...;Xn')
         dataMatrix.append([1.0] + [float(x) for x in lineList][:-1])
         # 标签行向量 W'，有需要时再转置
-        labelMatrix.append(int(lineList[-1]))
-    return dataMatrix, labelMatrix
+        labelVec.append(round(float(lineList[-1])))
+    return dataMatrix, labelVec
 
 
 # sigmoid的公式专门写个函数
@@ -71,33 +69,33 @@ def sigmoid(z):
     return sigemaZ
 
 
-# 梯度上升函数
-def gradient_descent(dataMatrix, labelMatrix, alpha=0.001, maxCycles=500):
+# 梯度下降函数
+def gradient_descent(dataMatrix, labelVec, alpha=0.0005, maxCycles=2000):
     """
     梯度下降函数，步长默认1,迭代次数默认300次
     :param maxCycles:
     :param dataMatrix:
-    :param labelMatrix:
+    :param labelVec:
     :param alpha:
-    :return:
+    :return W_list:
     """
     # A阵
     A_mat = mat(dataMatrix)
     # Y向量
-    Y_mat = mat(labelMatrix).transpose()
+    Y_mat = mat(labelVec).transpose()
     # 获取属性矩阵的行(样本数)、列数(属性数)
     sampleNum, attriNum = shape(A_mat)
     # 载入步长和最大迭代次数
     alpha = alpha
     maxCycles = maxCycles
     # 初始化 W列向量，它和列长度和属性数相同
-    W_mat = zeros((attriNum, 1))
+    W_mat = ones((attriNum, 1))
 
     # 开始迭代计算 W: = W - α * A'*(H - Y)
     for loopNum in range(maxCycles):
         # Z = A * W
         Z_mat = A_mat * W_mat
-        # H = A * W
+        # H = h(Z)
         H_mat = sigmoid(Z_mat)
         # W: = W - α * A'*(H - Y)
         W_mat = W_mat - alpha * A_mat.transpose() * (H_mat - Y_mat)
@@ -107,17 +105,103 @@ def gradient_descent(dataMatrix, labelMatrix, alpha=0.001, maxCycles=500):
     return W_list
 
 
-def plot_fitline(fileName=''):
-    dataMatrix, labelMatrix = read_dataset(fileName)
+# 随机梯度下降函数
+def random_gradient_descent(dataMatrix, labelVec, alpha=0.01):
+    """
+    简化版梯度下降,这里的计算全部在数组域完成，不使用矩阵，缩短计算时间
+
+    在完整的梯度下降法中，我们使用所有样本参与最大似然法的计算，这里我们就用了一个样本。
+    为什么可以这么干呢？我分析了下觉得其实这种方法是用于给原来的训练集添加新的数据时用的
+    比如原来有 n个数据，已经用梯度下降法做好了拟合，这 n个数据已经可以不用再管了，我们只要关注添加的新的数据对训练好的 W的影响。
+    只用一个样本参与最大似然法显然就是假定：我们在原来拟合好的基础上新添加了一个样本，
+    如此反复，这个过程重复了 n次，就相当于我们把 n个样本添加进了训练集
+
+    事实上，这个函数的效果肯定是很不好的，因为就像假设的那样，需要在原拟合线的基础上修正，但在这个函数里：
+    一.没有原始的拟合线。二.每次拟合过程只跑一遍。
+    但是，即使是知道效果不好，也很难改变，因为你在使用这个方法的时候，已经默认之前的 n个训练集和这一个新的训练集拥有相同的权重了，
+    如果出现了一个很不符常理数据，就会对结果造成重大影响，引起参数的剧烈波动，我觉得这个函数名很不名副其实。
+
+    书中有介绍改进办法: random_gradient_descent_ver2
+    事实上，我觉得改进法和本函数在思想上已经完全不同了，本函数是顺序添加样本，而改进版是随机取样并递减步长：
+    这样子你会大概率在步长比较大的时候取到正常的数据，而取到高偏差样本时又因为步长变小波动不会大。
+    :param dataMatrix:
+    :param labelVec:
+    :param alpha:
+    :return W_list:
+    """
+    # 获取属性矩阵的行(样本数)、列数(属性数)
+    sampleNum, attriNum = shape(dataMatrix)
+    # 载入步长和最大迭代次数
+    alpha = alpha
+    # 初始化 W列向量，它和列长度和属性数相同
+    W_Array = ones(attriNum)
+
+    # 开始迭代计算 W: = W - α * (h - y) * X'
+    for i in range(sampleNum):
+        # 求 z 这里使用的是数组乘
+        z_value = sum(dataMatrix[i] * W_Array)
+        # h(Z) = sigmoid(z)
+        h_value = sigmoid(z_value)
+        # W: = W - α * (h - y) * X'
+        W_Array = W_Array - alpha * (h_value - labelVec[i]) * array(dataMatrix[i])
+        print("Program in progress,the turn is {0}".format(i + 1))
+    W_list = list(W_Array)
+    print(W_list)
+    return W_list
+
+
+# 改进型随机梯度下降法
+def random_gradient_descent_ver2(dataMatrix, labelVec, alphaBase=0.001, maxCycles=150):
+    """
+    改进版本的随机梯度下降法：
+    首先，它循环了 maxCycles次，而不是原始的 1次
+    其次，迭代步长越来越小，高偏差值的样本波动也会随之越来越小
+    最后，它使用随机取样，我们可以大概率在迭代中避开一些高偏差的样本，这样子即使偶尔取到了，由于步长已经变小，波动也不大
+         如果真的非常不幸的在前期大量取到高偏差样本，大不了重来一次，要是再取到，可以去买彩票。
+
+    书里的取样法我觉得很迷，不知道他怎么想的，我干脆就用真正的随机取样，所有样本一律平等，可能会有些样本根本没取到，
+    但只要训练的次数够多，每个样本取到次数的期望值是一定的。
+    :param maxCycles:
+    :param dataMatrix:
+    :param labelVec:
+    :param alphaBase:
+    :return W_list:
+    """
+    sampleNum, attriNum = shape(dataMatrix)
+    # 初始化 W列向量，它和列长度和属性数相同
+    W_Array = ones(attriNum)
+
+    for j in range(maxCycles):
+        for i in range(sampleNum):
+            # 步长越来越小
+            alpha = 4 / (1.0 + j + i) + alphaBase
+            # 随机取样
+            randomIndex = int(random.uniform(0, sampleNum))
+            # 求 z 这里使用的是数组乘
+            z_value = sum(dataMatrix[randomIndex] * W_Array)
+            # h(Z) = sigmoid(z)
+            h_value = sigmoid(z_value)
+            # W: = W - α * (h - y) * X'
+            W_Array = W_Array - alpha * (h_value - labelVec[randomIndex]) * array(dataMatrix[randomIndex])
+        print("Program in progress,the turn is {0}".format((j + 1)*sampleNum))
+    W_list = list(W_Array)
+    print(W_list)
+    return W_list
+
+
+def plot_fitline(fileName='testSet.txt'):
+    dataMatrix, labelVec = read_dataset(fileName)
     dataList = list(array(dataMatrix))
-    weights = gradient_descent(dataMatrix, labelMatrix)
+    # weights = gradient_descent(dataMatrix, labelVec)
+    # weights = random_gradient_descent(dataMatrix, labelVec)
+    weights = random_gradient_descent_ver2(dataMatrix, labelVec)
     sampleNum = len(dataList)
     xcord1 = []
     ycord1 = []
     xcord2 = []
     ycord2 = []
     for i in range(sampleNum):
-        if int(labelMatrix[i]) == 1:
+        if int(labelVec[i]) == 1:
             xcord1.append(dataList[i][1])
             ycord1.append(dataList[i][2])
         else:
@@ -135,7 +219,7 @@ def plot_fitline(fileName=''):
     plt.show()
 
 
-file_name = 'testSet.txt'
+# file_name = 'testSet.txt'
 # data_matrix, label_matrix = read_dataset(file_name)
-# W = gradient_Ascent(data_matrix, label_matrix)
-plot_fitline(file_name)
+# W = gradient_descent(data_matrix, label_matrix)
+# plot_fitline(file_name)
