@@ -9,22 +9,24 @@ sigmoid函数：代替阶跃函数处理瞬间跳跃难以处理的问题
 
 其实我们使用这个函数得到的不是 0或 1，不能直接分类，事实上，这个函数有一层更深的意义(虽然我没搞懂)：
 P(y=1|z) = h(z)  P(y=0|z) = 1 - h(z)
-知道了样本的分布律后我们就可以使用常用的最优化方法：最大似然法
+知道了样本的分布律后我们就可以使用常用的最优化方法：最大似然法。
+最合理的参数估计量应该使得从模型中抽取该 m个样本观测值的概率最大。
 
 最大似然法：(X,W是包含一个样本中所有 xi和 wi的向量，我们假设有 m个样本)
   P(yj|zj) = P(yj|X;W) = (h(zj))^yj * (1-h(zj))^(1-yj)  (由于 y = 0、1上面的两个概率可以写成这一个)
   L(W) = P(y0|z0)*P(y1|z1)*...*P(yn|zn) = [(h(z0))^y0 * (1-h(z0))^(1-y0)]*...*[(h(zn))^yn * (1-h(zn))^(1-yn)]
   习惯性的取对数 l(W) = log(L(W)) = sum(yi*log(h(Xi)) + (1-yi)*log(1-h(Xi)))
   我们的目的是找到最大的 W 比较合适的方法是梯度上升，这里遵照博文用 Andrew Ng中的办法：
-  取 J(W) = -(1/n)l(W) 换成求最小值，用梯度下降法
+  取 J(W) = -(1/m)l(W) 换成求最小值，用梯度下降法
 
 梯度下降法：wj：= Wj - α*(∂J(W)/∂wj)
   ∂J(W)/∂wj 的求解过程这里略过，具体参照博文
   最后的结果是∂J(W)/∂wj = (1/m) * sum(h(zi)-yi) *xij
   梯度算法的过程写为：wj: = wj - α*(1/m) * sum[(h(Xi)-yi)*xij]
-  α本来就是带的待定系数，所以把(1/m)省略掉，最后的 wj更新式为：
-  wj: = wj - α * sum(h(Xi)-yi) * Xj
-  如果是用上升法那么是这样子的：wj: = wj + α * sum[(yi - h(Xi))*xij]  (α是个正数为前提)
+  α本来就是待定系数，所以把(1/m)省略掉，最后的 wj更新式为：
+  wj: = wj - α * sum[(h(Xi) - yi)*xij]  (α是个正数为前提)
+  如果是用上升法那么是这样子的：
+  wj: = wj + α * sum[(yi - h(Xi))*xij]  (α是个正数为前提)
 
 上式是对单个 wj系数的求法，现在我们打算 n个系数一起求：
 我们令 Xi = [xi0;xi1;...;xin] (其中 xi0为 1) 为第 i个样本的属性向量(列向量) Z = [z1;z2;...;zm] 是 Z阵
@@ -58,7 +60,7 @@ def read_dataset(fileName='testSet.txt'):
         lineList = frLine.strip().split()
         # Xi = (1；x1;x2;...;xn) A = (X1';X2';...;Xn')
         dataMatrix.append([1.0] + [float(x) for x in lineList][:-1])
-        # 标签行向量 W'，有需要时再转置
+        # 标签行向量 Y'，有需要时再转置
         labelVec.append(round(float(lineList[-1])))
     return dataMatrix, labelVec
 
@@ -72,7 +74,7 @@ def sigmoid(z):
 # 梯度下降函数
 def gradient_descent(dataMatrix, labelVec, alpha=0.0005, maxCycles=2000):
     """
-    梯度下降函数，步长默认1,迭代次数默认300次
+    梯度下降函数，步长默认0.005,迭代次数默认2000次
     :param maxCycles:
     :param dataMatrix:
     :param labelVec:
@@ -88,7 +90,7 @@ def gradient_descent(dataMatrix, labelVec, alpha=0.0005, maxCycles=2000):
     # 载入步长和最大迭代次数
     alpha = alpha
     maxCycles = maxCycles
-    # 初始化 W列向量，它和列长度和属性数相同
+    # 初始化 W列向量，它的列长度和属性数相同
     W_mat = ones((attriNum, 1))
 
     # 开始迭代计算 W: = W - α * A'*(H - Y)
