@@ -183,12 +183,11 @@ def SVM_plattSMO(smoTask):
     主算法
     :param smoTask:
     """
-    # 记录 遍历 a后所有 a都未改变的次数，而且只要中途有改变，则归零
     innerLoopSum = 0
     entireSet = True
     alphaPairsChanged = 0
     lestLoop = smoTask.lestLoop
-    # 累计未变化 maxCyCle次后跳出循环
+
     while ((innerLoopSum < smoTask.maxCycle) and ((alphaPairsChanged > 0) or entireSet)) or (lestLoop > 0):
         lestLoop -= 1
         alphaPairsChanged = 0
