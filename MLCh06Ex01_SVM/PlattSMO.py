@@ -35,7 +35,7 @@ class SMO_struct:
 def kernelTrans(A_mat, A, kTup):  # calc the kernel or transform data to a higher dimensional space
     m, n = shape(A_mat)
     K = mat(zeros((m, 1)))
-    # linear kernel 其实我们就用这个，另一个多余的，作者也是复制来的吧...
+    # linear kernel 我们暂时就用这个
     if kTup[0] == 'lin':
         K = A_mat * A.T
     elif kTup[0] == 'rbf':
