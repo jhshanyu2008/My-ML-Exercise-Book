@@ -201,8 +201,8 @@ def SVM_simpleSMO(dataMatrix, labelVec, c, faultToler=0.001, maxCycle=50):
                 # b2new = bold−E2−y1(α1new−α1old)K(x1, x2)−y2(α2new−α2old)K(x2, x2)
                 b1 = b - errorXi - Y_vec[i] * (Alpha_mat[i] - Alpha_1Old) * A_mat[i, :] * A_mat[i, :].T \
                      - Y_vec[j] * (Alpha_mat[j] - Alpha_2Old) * A_mat[i, :] * A_mat[j, :].T
-                b2 = b - errorXj - Y_vec[i] * (Alpha_mat[i] - Alpha_1Old) * A_mat[i, :] * A_mat[i, :].T \
-                     - Y_vec[j] * (Alpha_mat[j] - Alpha_2Old) * A_mat[i, :] * A_mat[j, :].T
+                b2 = b - errorXj - Y_vec[i] * (Alpha_mat[i] - Alpha_1Old) * A_mat[i, :] * A_mat[j, :].T \
+                     - Y_vec[j] * (Alpha_mat[j] - Alpha_2Old) * A_mat[j, :] * A_mat[j, :].T
                 # 若 0 ≤ α1new ≤ c 取 b1
                 # 若 0 ≤ α2new ≤ c 取 b2
                 # 其他情况 取 (b1+b2)/2
