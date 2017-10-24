@@ -1,13 +1,13 @@
 """
 使用 KernelSMO处理第二章的 kNN手写识别
-由于使二分类，我们只选 0和 9的
+由于是二分类，我们只选 0和 9的样本
 """
 from KernelSMO import *
 import os
 
 
 # 先把处理文本的几个函数复制过来
-# 为了配合SVM的函数，我全部列表操作了
+# 为了配合SVM的函数也试试不同方法我全部列表操作了
 
 # 读取处理过的图像文本，转化为向量
 def turn_into_list(filename):
@@ -21,6 +21,7 @@ def turn_into_list(filename):
     returnList = []
     file = open(filename)
     # 依次读取各行各位的数据，转换成浮点数存入列表中
+    # 【注意】每行的最后一个字符是换行符\n
     for fileLine in file.readlines():
         for j in range(len(fileLine[0:-1])):
             returnList.append(float(fileLine[j]))
