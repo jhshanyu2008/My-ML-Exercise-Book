@@ -109,11 +109,11 @@ def test_kernel_SMO(smoTask):
         # sign函数使 0为 0、负数为 -1、正数为 +1
         if sign(predict) != sign(smoTask.labelList[i]):
             errorCount += 1
-    print("\nthe training error rate is: {0}%".format(float(errorCount * 100) / smoTask.sampleSum))
+    print("\nThe training error rate is: {0}%".format(float(errorCount * 100) / smoTask.sampleSum))
 
 
 data_matrix, label_list = load_total_dataset('testSetRBF.txt', 'testSetRBF2.txt')
-# c=200极其重要，c相对来说越小效率越高
+# c=200极其重要，σ相对来说越小效率越高
 # 这两个参数选的蛮不错的，就是速度慢了点
 test_smoTask = kernelSMO_struct(data_matrix, label_list, c=200, kType=('kernel', 0.1))
 test_kernel_SMO(test_smoTask)
