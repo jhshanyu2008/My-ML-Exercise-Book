@@ -1,6 +1,6 @@
 """
 完整的 SMO算法
-就图画来看，性能不太好
+就图画来看，性能怎么说呢，图不好看，但分类还算准
 第一次随机到的 aj直接大范围影响性能，基本上跑个7、8次会出现一次性能好的情况。
 除了调整 c和 faultToler的大小外
 我感觉内循环次数越多，越准确，但是大多数实验都是3、4次就结束了，能自动循环到 7次的基本性能就比较好
@@ -12,7 +12,7 @@ from SampleSMO import *
 
 # 写一个专门的类，保存 SMO任务的各种数据，包括 A阵，Y阵，Alpha阵等等
 class SMO_struct:
-    def __init__(self, fileName="testSet", c=0.1, faultToler=0.0, maxCycle=50, kTup=('lin', 0)):
+    def __init__(self, fileName="testSet", c=200, faultToler=0.0001, maxCycle=100, kType=('linear', 0)):
         self.dataMatrix, labelVec = load_dataset(fileName)
         self.c = c
         self.faultToler = faultToler
@@ -28,22 +28,22 @@ class SMO_struct:
         self.ErrCache_mat = mat(zeros((self.sampleSum, 2)))
         self.K = mat(zeros((self.sampleSum, self.sampleSum)))
         for i in range(self.sampleSum):
-            self.K[:, i] = kernelTrans(self.A_mat, self.A_mat[i, :], kTup)
+            # 一次计算一整列的 K
+            self.K[:, i] = kernelTrans(self.A_mat, self.A_mat[i, :], kType)
 
 
-# 书上程序新增的一个辅助计算 K(xi,xj)的函数，我不改直接拿来用了
-def kernelTrans(A_mat, A, kTup):  # calc the kernel or transform data to a higher dimensional space
+# 书上程序新增的一个辅助计算 K(xi,xj)的函数，我先不改直接拿来用
+def kernelTrans(A_mat, A, kType):
     m, n = shape(A_mat)
     K = mat(zeros((m, 1)))
-    # linear kernel 我们暂时就用这个
-    if kTup[0] == 'lin':
+    # linear kernel 其实我们就用这个
+    if kType[0] == 'linear':
         K = A_mat * A.T
-    elif kTup[0] == 'rbf':
+    elif kType[0] == 'kernel':
         for j in range(m):
             deltaRow = A_mat[j, :] - A
             K[j] = deltaRow * deltaRow.T
-        # divide in NumPy is element-wise not matrix like Matlab
-        K = exp(K / (-1 * kTup[1] ** 2))
+        K = exp(K / (-1 * kType[1] ** 2))
     else:
         raise NameError('The Kernel is not recognized')
     return K
@@ -183,11 +183,12 @@ def SVM_plattSMO(smoTask):
     主算法
     :param smoTask:
     """
+    # 记录 遍历 a后所有 a都未改变的次数，而且只要中途有改变，则归零
     innerLoopSum = 0
     entireSet = True
     alphaPairsChanged = 0
     lestLoop = smoTask.lestLoop
-
+    # 累计未变化 maxCyCle次后跳出循环
     while ((innerLoopSum < smoTask.maxCycle) and ((alphaPairsChanged > 0) or entireSet)) or (lestLoop > 0):
         lestLoop -= 1
         alphaPairsChanged = 0
@@ -218,6 +219,7 @@ def plattSMO_fitline(smoTask):
     dataArray = smoTask.A_mat.A
     sampleNum = len(dataArray)
     SVM_plattSMO(smoTask)
+    # W = sum(aj * yj * Xj) = （Alpha_vec 数乘 Y_vec）' * A_vec
     W_List = list(array(multiply(smoTask.Alpha_vec, smoTask.Y_vec).T * smoTask.A_mat)[0])
     xcord1 = []
     ycord1 = []
@@ -246,5 +248,5 @@ def plattSMO_fitline(smoTask):
     plt.show()
 
 
-test_smoTask = SMO_struct(fileName="testSet.txt")
-plattSMO_fitline(test_smoTask)
+# test_smoTask = SMO_struct(fileName="testSet.txt")
+# plattSMO_fitline(test_smoTask)
