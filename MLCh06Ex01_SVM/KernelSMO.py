@@ -28,8 +28,8 @@ class kernelSMO_struct:
         self.sampleSum = shape(self.A_mat)[0]
         self.Alpha_vec = mat(zeros((self.sampleSum, 1)))
         self.b = 0
-        self.lestLoop = 7
-        self.randAjSum = 5
+        self.lestLoop = 1
+        self.randAjSum = 1
         self.kType = kType
         # 误差缓存，第一列是是否有效的标志位，第二列是实际的 E值
         self.ErrCache_mat = mat(zeros((self.sampleSum, 2)))
@@ -109,6 +109,16 @@ def test_kernel_SMO(smoTask):
         # sign函数使 0为 0、负数为 -1、正数为 +1
         if sign(predict) != sign(smoTask.labelList[i]):
             errorCount += 1
+<<<<<<< HEAD
+    print("\nThe Training error rate is: {0}%".format(float(errorCount * 100) / smoTask.sampleSum))
+
+
+"""data_matrix, label_list = load_total_dataset('testSetRBF.txt', 'testSetRBF2.txt')
+# c=200极其重要，σ相对来说越小效率越高
+# 根据书中的解释，支持向量越多，越容易过拟合，越少越容易欠拟合，这之间要多次尝试找一个平衡点
+test_smoTask = kernelSMO_struct(data_matrix, label_list, c=200, kType=('kernel', 1))
+test_kernel_SMO(test_smoTask)"""
+=======
     print("\nThe training error rate is: {0}%".format(float(errorCount * 100) / smoTask.sampleSum))
 
 
@@ -117,3 +127,4 @@ data_matrix, label_list = load_total_dataset('testSetRBF.txt', 'testSetRBF2.txt'
 # 这两个参数选的蛮不错的，就是速度慢了点
 test_smoTask = kernelSMO_struct(data_matrix, label_list, c=200, kType=('kernel', 0.1))
 test_kernel_SMO(test_smoTask)
+>>>>>>> 3deb13da0c3d5c67c4666f25ac2b4e975c7e497e
