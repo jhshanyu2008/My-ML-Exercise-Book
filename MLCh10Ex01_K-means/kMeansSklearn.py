@@ -44,7 +44,7 @@ def main_func(img_name="test.png", k=15):
                     pic_new.putpixel((r, c), img_file.getpixel((r, c)))
                 else:
                     pic_new.putpixel((r, c), (255, 255, 255, 0))
-        # 等会在组合图片时排除不满足这个条件的类别
+        # 等会在组合图片时排除满足这个条件的类别
         if pic_new.getpixel((160, 10)) != (255, 255, 255, 0):
             deletNum = n
         pic_new.save('{0}.png'.format(n), 'PNG')
